@@ -49,7 +49,7 @@ const checkType = computed<string>(() => {
             <input
                 v-model="model"
                 :type="checkType"
-                required
+                :required="required"
                 :placeholder="placeholder"
                 :disabled="disabled"
                 class="h-[44px] w-full bg-white px-4 rounded-[18px] text-sm text-[#203f39] outline-none transition"

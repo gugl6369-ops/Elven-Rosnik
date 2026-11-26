@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'ClimateCrisis';
+    font-style: normal;
+    font-weight: 400 900;
+    font-display: swap;
+    src:
+        url('../fonts/ClimateCrisis[YEAR].woff2') format('woff2'),
+        url('../fonts/ClimateCrisis[YEAR].woff') format('woff');
+}

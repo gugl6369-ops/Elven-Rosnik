@@ -1,17 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 
-import type { LoginFormValues } from '@/entities/auth';
-import {
-    loginSchema,
-    mapZodFieldErrors,
-    safeParseForm,
-} from '@/features/auth/login';
 import { store as loginStore } from '@/routes/login';
 import { AppInput, AppLink, Button } from '@/shared/ui';
-
-type LoginField = keyof LoginFormValues;
 
 const form = useForm({
     username: '',
@@ -19,87 +10,7 @@ const form = useForm({
     remember: false,
 });
 
-const clientErrors = ref<Record<string, string>>({});
-const touched = ref<Record<string, boolean>>({});
-const submitAttempted = ref(false);
-
-const values = (): LoginFormValues => ({
-    username: form.username,
-    password: form.password,
-});
-
-const refreshFields = (fields: LoginField[]): void => {
-    const result = loginSchema.safeParse(values());
-    const errors = result.success
-        ? {}
-        : mapZodFieldErrors(result.error);
-
-    for (const name of fields) {
-        const show = touched.value[name] || submitAttempted.value;
-
-        if (!show) {
-            continue;
-        }
-
-        if (errors[name]) {
-            clientErrors.value[name] = errors[name];
-        } else {
-            delete clientErrors.value[name];
-        }
-    }
-};
-
-const onBlur = (field: LoginField): void => {
-    touched.value[field] = true;
-    refreshFields([field]);
-};
-
-const onInput = (field: LoginField): void => {
-    if (!touched.value[field] && !submitAttempted.value) {
-        return;
-    }
-
-    refreshFields([field]);
-};
-
-const validateAll = (): boolean => {
-    submitAttempted.value = true;
-
-    for (const name of ['username', 'password'] as const) {
-        touched.value[name] = true;
-    }
-
-    const parsed = safeParseForm(loginSchema, values());
-
-    if (!parsed.success) {
-        clientErrors.value = parsed.errors;
-
-        return false;
-    }
-
-    clientErrors.value = {};
-
-    return true;
-};
-
-const clientFieldError = (
-    name: LoginField,
-): string | undefined => {
-    if (!touched.value[name] && !submitAttempted.value) {
-        return undefined;
-    }
-
-    return clientErrors.value[name];
-};
-
-const fieldError = (name: LoginField): string | undefined =>
-    form.errors[name] ?? clientFieldError(name);
-
 const submit = (): void => {
-    if (!validateAll()) {
-        return;
-    }
-
     form.post(loginStore.url(), {
         onFinish: () => form.reset('password'),
     });
@@ -117,18 +28,14 @@ const submit = (): void => {
                 v-model="form.username"
                 label="Логин"
                 placeholder="Логин"
-                :error="fieldError('username')"
-                @blur="onBlur('username')"
-                @input="onInput('username')"
+                :error="form.errors.username"
             />
             <AppInput
                 v-model="form.password"
                 label="Пароль"
                 type="password"
                 placeholder="Пароль"
-                :error="fieldError('password')"
-                @blur="onBlur('password')"
-                @input="onInput('password')"
+                :error="form.errors.password"
             />
         </div>
         <div class="flex justify-between w-full pt-[78px] pb-[65px]">

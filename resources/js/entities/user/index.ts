@@ -1,9 +1,9 @@
-export {
-    CONTINUE_REGISTER_DRAFT_STORAGE_KEY,
-    useContinueRegisterDraftStore,
-    type AuthPageProps,
-    type AuthUser,
-    type ContinueRegisterDraftFields,
-    type ContinueRegisterFormValues,
-    type ContinueRegisterProfileFields,
+export type {
+    AccountPageProps,
+    AuthPageProps,
+    AuthUser,
+    ContinueRegisterDraftFields,
+    ContinueRegisterFormValues,
+    ContinueRegisterProfileFields,
+    RegisterStep1DraftFields,
 } from './model';

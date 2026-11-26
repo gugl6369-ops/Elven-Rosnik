@@ -3,7 +3,7 @@ import { createPinia } from 'pinia';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 import { createApp, h } from 'vue';
 
-import { AppToastHost } from '@/entities/toast';
+import { AppToastHost } from '@/shared/ui/toast';
 
 import '../css/app.css';
 

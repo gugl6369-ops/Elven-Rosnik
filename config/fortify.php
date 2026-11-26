@@ -24,7 +24,7 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'username' => 'email',
+    'username' => 'username',
 
     'email' => 'email',
 
@@ -68,8 +68,12 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'limiters' => [
+    'limiters' => filter_var(env('DISABLE_AUTH_THROTTLE', true), FILTER_VALIDATE_BOOLEAN) ? [
+        'login' => null,
+        'registration' => null,
+    ] : [
         'login' => 'login',
+        'registration' => 'registration',
     ],
 
     /*
@@ -82,7 +86,7 @@ return [
     |
     */
 
-    'views' => false,
+    'views' => true,
 
     /*
     |--------------------------------------------------------------------------
@@ -94,7 +98,7 @@ return [
     */
 
     'features' => [
-        //
+        // Step 1 UI only; user creation is POST /register/continue (CompleteUserRegistration).
     ],
 
 ];

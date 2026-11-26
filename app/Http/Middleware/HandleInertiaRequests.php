@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Controllers\AccountController;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -32,6 +33,11 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            'auth' => [
+                'user' => $request->user()
+                    ? $request->user()->only(AccountController::inertiaUserFields())
+                    : null,
+            ],
         ];
     }
 }
