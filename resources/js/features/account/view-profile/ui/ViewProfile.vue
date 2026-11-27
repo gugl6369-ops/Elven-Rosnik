@@ -2,17 +2,12 @@
 import { computed } from 'vue';
 
 import type { AuthUser } from '@/entities/user';
+import { ChangeAvatar } from '@/features/account/change-avatar';
 import { AppInput } from '@/shared/ui';
 
 const props = defineProps<{
     user: AuthUser;
 }>();
-
-const defaultAvatarUrl = '/image/avatar-loading.svg';
-
-const avatarSrc = computed(
-    () => props.user.avatar?.trim() || defaultAvatarUrl,
-);
 
 const memberSince = computed(() => {
     if (!props.user.created_at) {
@@ -38,14 +33,7 @@ const display = (value: string | null | undefined): string =>
 
 <template>
     <section class="flex w-full flex-col gap-8">
-        <div class="flex flex-col items-center gap-3">
-            <span class="text-sm text-[#444444]">Аватар</span>
-            <img
-                :src="avatarSrc"
-                alt="Аватар пользователя"
-                class="h-28 w-28 rounded-full border-2 border-[#21483f] object-cover"
-            />
-        </div>
+        <ChangeAvatar :user="user" />
         <form class="flex w-full flex-col gap-5" @submit.prevent>
             <AppInput
                 :model-value="display(user.username)"

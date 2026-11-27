@@ -3,6 +3,7 @@
 namespace App\Actions\Auth;
 
 use App\Actions\Fortify\PasswordValidationRules;
+use App\Actions\User\UserAvatarStorage;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +15,10 @@ use Illuminate\Validation\ValidationException;
 class CompleteUserRegistration
 {
     use PasswordValidationRules;
+
+    public function __construct(
+        private UserAvatarStorage $avatarStorage,
+    ) {}
 
     /**
      * @param  array<string, mixed>  $input
@@ -57,26 +62,11 @@ class CompleteUserRegistration
             $avatar = $input['avatar'] ?? null;
 
             if ($avatar instanceof UploadedFile && $avatar->isValid()) {
-                $path = $this->storeAvatar($user, $avatar);
+                $path = $this->avatarStorage->store($user, $avatar);
                 $user->update(['avatar' => $path]);
             }
 
             return $user->fresh();
         });
-    }
-
-    private function storeAvatar(User $user, UploadedFile $file): string
-    {
-        $directory = public_path('avatars');
-
-        if (! is_dir($directory)) {
-            mkdir($directory, 0755, true);
-        }
-
-        $extension = $file->getClientOriginalExtension() ?: 'jpg';
-        $filename = $user->id.'.'.$extension;
-        $file->move($directory, $filename);
-
-        return '/avatars/'.$filename;
     }
 }

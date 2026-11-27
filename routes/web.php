@@ -39,6 +39,9 @@ Route::middleware(['auth'])->group(function (): void {
     Route::get('/account', [AccountController::class, 'show'])
         ->name('account');
 
+    Route::post('/account/avatar', [AccountController::class, 'updateAvatar'])
+        ->name('account.avatar.update');
+
     Route::get('/account/favorites', [FavoriteController::class, 'index'])
         ->name('account.favorites');
 
