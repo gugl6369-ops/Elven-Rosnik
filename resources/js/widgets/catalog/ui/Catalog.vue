@@ -10,6 +10,7 @@ withDefaults(
         subtitle?: string;
         emptyTitle?: string;
         emptyHint?: string;
+        showPagination?: boolean;
     }>(),
     {
         title: 'Каталог растений',
@@ -17,6 +18,7 @@ withDefaults(
         emptyTitle: 'В каталоге пока нет растений.',
         emptyHint:
             'Добавьте записи в БД или выполните `php artisan db:seed --class=PlantCatalogSeeder`.',
+        showPagination: true,
     },
 );
 </script>
@@ -45,7 +47,7 @@ withDefaults(
         </ul>
 
         <nav
-            v-if="plants.last_page > 1"
+            v-if="showPagination && plants.last_page > 1"
             class="catalog__pagination"
             aria-label="Страницы каталога"
         >

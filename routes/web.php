@@ -4,20 +4,13 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Auth\ContinueRegistrationController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Catalog\CatalogController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Social\FavoriteController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
-Route::get('/', function (Request $request) {
-    if (! $request->user()) {
-        return redirect()->route('login');
-    }
-
-    return Inertia::render('Home', [
-        'appName' => config('app.name'),
-    ]);
-})->name('home');
+Route::middleware(['auth'])->group(function (): void {
+    Route::get('/', HomeController::class)->name('home');
+});
 
 Route::get('/register', [RegisterController::class, 'show'])
     ->name('register');

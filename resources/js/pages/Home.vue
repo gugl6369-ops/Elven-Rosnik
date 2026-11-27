@@ -1,46 +1,99 @@
 <script setup lang="ts">
-import type { AuthPageProps } from '@/entities/user';
-import { LogoutButton } from '@/features/account/logout';
-import { AppLink } from '@/shared/ui';
+import type { HomePageProps } from '@/entities/story';
+import { Catalog } from '@/widgets/catalog';
 import { AppShell } from '@/widgets/layout';
-import { usePage } from '@inertiajs/vue3';
+import { StoriesStrip } from '@/widgets/stories';
+import { AppLink } from '@/shared/ui';
 
-defineProps<{
-    appName?: string;
-}>();
-
-const page = usePage<AuthPageProps>();
+defineProps<Pick<HomePageProps, 'appName' | 'stories' | 'plants'>>();
 </script>
 
 <template>
-    <AppShell max-width-class="max-w-xl">
-        <div class="flex flex-col items-center gap-6 text-center">
-            <div class="flex flex-col gap-2">
-                <h1 class="m-0 text-4xl font-semibold tracking-tight text-[#203f39]">
+    <AppShell>
+        <div class="home">
+            <header class="home__hero">
+                <h1 class="home__title">
                     {{ appName ?? 'elfi_ros' }}
                 </h1>
-                <p class="m-0 text-sm text-[#78928a]">
-                    Добро пожаловать в каталог растений.
+                <p class="home__subtitle">
+                    Истории сообщества и свежие карточки из каталога.
                 </p>
-            </div>
-            <div
-                v-if="page.props.auth.user"
-                class="flex w-full max-w-sm flex-col items-stretch gap-3"
-            >
-                <AppLink
-                    href="/catalog"
-                    class="rounded-xl border border-[#21483f] bg-[#21483f] px-4 py-3 text-center text-sm font-medium text-white transition-colors hover:bg-[#1a3a32]"
-                >
-                    Каталог растений
-                </AppLink>
-                <AppLink
-                    href="/account"
-                    class="rounded-xl border border-[#d7e5e0] bg-white px-4 py-3 text-center text-sm font-medium text-[#21483f] transition-colors hover:bg-[#f0f5f3]"
-                >
-                    Личный кабинет
-                </AppLink>
-                <LogoutButton />
-            </div>
+            </header>
+
+            <StoriesStrip :stories="stories" />
+
+            <section class="home__catalog">
+                <Catalog
+                    :plants="plants"
+                    title="Каталог растений"
+                    subtitle="Первые карточки — полный список в каталоге."
+                    :show-pagination="false"
+                />
+                <div class="home__catalog-footer">
+                    <AppLink
+                        href="/catalog"
+                        class="home__catalog-link"
+                    >
+                        Смотреть весь каталог
+                    </AppLink>
+                </div>
+            </section>
         </div>
     </AppShell>
 </template>
+
+<style scoped>
+.home {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+.home__hero {
+    text-align: center;
+}
+
+.home__title {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #203f39;
+}
+
+.home__subtitle {
+    margin: 0.5rem 0 0;
+    font-size: 0.9375rem;
+    color: #78928a;
+}
+
+.home__catalog {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.home__catalog-footer {
+    display: flex;
+    justify-content: center;
+}
+
+.home__catalog-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.75rem;
+    border: 1px solid #21483f;
+    background: #21483f;
+    padding: 0.65rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #fff;
+    text-decoration: none;
+    transition: background-color 0.15s ease;
+}
+
+.home__catalog-link:hover {
+    background: #1a3a32;
+}
+</style>

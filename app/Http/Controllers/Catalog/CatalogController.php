@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Catalog;
 
+use App\Http\Controllers\Catalog\Concerns\FormatsPlantListItems;
 use App\Http\Controllers\Controller;
 use App\Models\Favorite;
 use App\Models\Plant;
@@ -11,6 +12,8 @@ use Inertia\Response;
 
 class CatalogController extends Controller
 {
+    use FormatsPlantListItems;
+
     public function index(Request $request): Response
     {
         $favoritePlantIds = $this->favoritePlantIdsForUser($request);
@@ -97,48 +100,5 @@ class CatalogController extends Controller
                 'favorites_count' => $favoritesCount,
             ],
         ]);
-    }
-
-    /**
-     * @return list<int>
-     */
-    private function favoritePlantIdsForUser(Request $request): array
-    {
-        $user = $request->user();
-
-        if ($user === null) {
-            return [];
-        }
-
-        return $user->favoritePlants()
-            ->pluck('plant.id')
-            ->map(static fn ($id): int => (int) $id)
-            ->all();
-    }
-
-    /**
-     * @param  list<int>  $favoritePlantIds
-     * @return array<string, mixed>
-     */
-    private function formatPlantListItem(Plant $plant, array $favoritePlantIds): array
-    {
-        return [
-            'id' => $plant->id,
-            'name' => $plant->name,
-            'image_url' => $plant->image_url,
-            'description' => $plant->description,
-            'height' => $plant->height !== null ? (string) $plant->height : null,
-            'watering_frequency' => $plant->watering_frequency,
-            'sunlight' => $plant->sunlight,
-            'temp_min' => $plant->temp_min !== null ? (string) $plant->temp_min : null,
-            'temp_max' => $plant->temp_max !== null ? (string) $plant->temp_max : null,
-            'genus' => $plant->genus !== null
-                ? [
-                    'id' => $plant->genus->id,
-                    'genus_name' => $plant->genus->genus_name,
-                ]
-                : null,
-            'is_favorited' => in_array($plant->id, $favoritePlantIds, true),
-        ];
     }
 }
