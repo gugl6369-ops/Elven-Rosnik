@@ -17,6 +17,7 @@ use Illuminate\Notifications\Notifiable;
  * @property string|null $avatar
  * @property string|null $email
  * @property string $password
+ * @property string|null $remember_token
  * @property string|null $name
  * @property string|null $status
  * @property string|null $tiktok
@@ -57,6 +58,7 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
+        'remember_token',
     ];
 
     /**
