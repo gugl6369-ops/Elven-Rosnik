@@ -28,20 +28,10 @@ export type PlantRecipeSummary = {
     name: string;
 };
 
-/**
- * Row for the read-only comments block on the plant detail page.
- * Expected from Inertia when the backend exposes `plant.comments`.
- */
-export type PlantCommentPreview = {
-    id: number;
-    content: string;
-    created_at: string;
-    author: {
-        id: number;
-        username: string;
-        name: string | null;
-    };
-};
+import type { CommentPreview } from '@/entities/comment';
+
+/** @deprecated Use `CommentPreview` from `@/entities/comment`. */
+export type PlantCommentPreview = CommentPreview;
 
 /**
  * Detail DTO for `GET /catalog/plants/{plant}` (target props shape).

@@ -1,0 +1,1 @@
+export { default as EntityCommentsSection } from './EntityCommentsSection.vue';

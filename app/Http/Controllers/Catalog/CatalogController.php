@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Catalog;
 
 use App\Http\Controllers\Catalog\Concerns\FormatsPlantListItems;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Social\Concerns\FormatsComments;
+use App\Models\Comment;
 use App\Models\Favorite;
 use App\Models\Plant;
 use Illuminate\Http\Request;
@@ -12,6 +14,7 @@ use Inertia\Response;
 
 class CatalogController extends Controller
 {
+    use FormatsComments;
     use FormatsPlantListItems;
 
     public function index(Request $request): Response
@@ -65,6 +68,12 @@ class CatalogController extends Controller
             ->where('plant_id', $plant->id)
             ->count();
 
+        $commentsCount = Comment::query()
+            ->where('entity_type', 'plant')
+            ->where('entity_id', $plant->id)
+            ->where('is_deleted', false)
+            ->count();
+
         return Inertia::render('catalog/ui/PlantPage', [
             'plant' => [
                 'id' => $plant->id,
@@ -98,6 +107,8 @@ class CatalogController extends Controller
                 ])->values(),
                 'is_favorited' => $isFavorited,
                 'favorites_count' => $favoritesCount,
+                'comments' => $this->loadVisibleCommentsForMorph('plant', $plant->id),
+                'comments_count' => $commentsCount,
             ],
         ]);
     }

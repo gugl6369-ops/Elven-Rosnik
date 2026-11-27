@@ -8,6 +8,8 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\ContinueRegistrationController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Catalog\CatalogController;
+use App\Http\Controllers\Catalog\RecipeController as CatalogRecipeController;
+use App\Http\Controllers\Social\CommentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Social\FavoriteController;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +26,9 @@ Route::get('/catalog', [CatalogController::class, 'index'])
 
 Route::get('/catalog/plants/{plant}', [CatalogController::class, 'show'])
     ->name('catalog.plants.show');
+
+Route::get('/catalog/recipes/{recipe}', [CatalogRecipeController::class, 'show'])
+    ->name('catalog.recipes.show');
 
 Route::get('/register/continue', [ContinueRegistrationController::class, 'show'])
     ->name('register.continue');
@@ -50,6 +55,20 @@ Route::middleware(['auth'])->group(function (): void {
 
     Route::delete('/plants/{plant}/favorite', [FavoriteController::class, 'destroy'])
         ->name('plants.favorite.destroy');
+
+    Route::post('/plants/{plant}/comments', [CommentController::class, 'storePlant'])
+        ->name('plants.comments.store');
+    Route::patch('/plants/{plant}/comments/{comment}', [CommentController::class, 'updatePlant'])
+        ->name('plants.comments.update');
+    Route::delete('/plants/{plant}/comments/{comment}', [CommentController::class, 'destroyPlant'])
+        ->name('plants.comments.destroy');
+
+    Route::post('/recipes/{recipe}/comments', [CommentController::class, 'storeRecipe'])
+        ->name('recipes.comments.store');
+    Route::patch('/recipes/{recipe}/comments/{comment}', [CommentController::class, 'updateRecipe'])
+        ->name('recipes.comments.update');
+    Route::delete('/recipes/{recipe}/comments/{comment}', [CommentController::class, 'destroyRecipe'])
+        ->name('recipes.comments.destroy');
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function (): void {

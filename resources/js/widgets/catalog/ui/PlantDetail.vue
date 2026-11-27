@@ -2,11 +2,14 @@
 import type { PlantDetail } from '@/entities/plant';
 import { PlantCommentsList } from '@/entities/plant';
 import { PlantFavoriteToggle } from '@/features/favorite';
+import { Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 const props = defineProps<{
     plant: PlantDetail;
     isAuthenticated: boolean;
+    currentUserId?: number | null;
+    isAdmin?: boolean;
 }>();
 
 const genusLabel = computed(() => {
@@ -169,7 +172,12 @@ const extendedSections = computed(() => {
             </h2>
             <ul class="plant-detail__recipes">
                 <li v-for="recipe in recipes" :key="recipe.id">
-                    {{ recipe.name }}
+                    <Link
+                        :href="`/catalog/recipes/${recipe.id}`"
+                        class="plant-detail__recipe-link"
+                    >
+                        {{ recipe.name }}
+                    </Link>
                 </li>
             </ul>
         </section>
@@ -188,8 +196,12 @@ const extendedSections = computed(() => {
         </section>
 
         <PlantCommentsList
+            :plant-id="plant.id"
             :comments="comments"
             :comments-count="commentsCount"
+            :is-authenticated="isAuthenticated"
+            :current-user-id="currentUserId ?? null"
+            :is-admin="isAdmin ?? false"
         />
     </article>
 </template>
@@ -340,6 +352,11 @@ const extendedSections = computed(() => {
     padding-left: 1.25rem;
     color: #203f39;
     line-height: 1.5;
+}
+
+.plant-detail__recipe-link {
+    color: #2f6d61;
+    text-decoration: underline;
 }
 
 .plant-detail__prose {

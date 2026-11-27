@@ -2,9 +2,15 @@
 
 namespace App\Providers;
 
+use App\Models\Comment;
+use App\Models\Plant;
+use App\Models\Recipe;
+use App\Policies\CommentPolicy;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -23,6 +29,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Relation::enforceMorphMap([
+            'plant' => Plant::class,
+            'recipe' => Recipe::class,
+        ]);
+
+        Gate::policy(Comment::class, CommentPolicy::class);
+
         $this->configureDefaults();
     }
 
