@@ -14,9 +14,17 @@ class CatalogController extends Controller
     public function index(Request $request): Response
     {
         $favoritePlantIds = $this->favoritePlantIdsForUser($request);
+        $search = $request->string('search')->trim()->toString();
 
         $plants = Plant::query()
             ->with(['genus:id,genus_name'])
+            ->when($search !== '', function ($query) use ($search): void {
+                $like = '%'.$search.'%';
+                $query->where(function ($inner) use ($like): void {
+                    $inner->where('name', 'ilike', $like)
+                        ->orWhere('description', 'ilike', $like);
+                });
+            })
             ->orderBy('name')
             ->paginate(12)
             ->withQueryString()
@@ -26,6 +34,9 @@ class CatalogController extends Controller
 
         return Inertia::render('catalog/ui/CatalogPage', [
             'plants' => $plants,
+            'filters' => [
+                'search' => $search,
+            ],
         ]);
     }
 

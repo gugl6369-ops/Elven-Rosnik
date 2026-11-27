@@ -2,6 +2,7 @@
 import type { AuthPageProps } from '@/entities/user';
 import { LogoutButton } from '@/features/account/logout';
 import { AppLink } from '@/shared/ui';
+import { AppShell } from '@/widgets/layout';
 import { usePage } from '@inertiajs/vue3';
 
 defineProps<{
@@ -12,66 +13,34 @@ const page = usePage<AuthPageProps>();
 </script>
 
 <template>
-    <div class="home">
-        <h1>{{ appName ?? 'elfi_ros' }}</h1>
-        <p>Clean slate — ready for product code.</p>
-        <div v-if="page.props.auth.user" class="home-nav">
-            <AppLink
-                href="/catalog"
-                class="home-link"
+    <AppShell max-width-class="max-w-xl">
+        <div class="flex flex-col items-center gap-6 text-center">
+            <div class="flex flex-col gap-2">
+                <h1 class="m-0 text-4xl font-semibold tracking-tight text-[#203f39]">
+                    {{ appName ?? 'elfi_ros' }}
+                </h1>
+                <p class="m-0 text-sm text-[#78928a]">
+                    Добро пожаловать в каталог растений.
+                </p>
+            </div>
+            <div
+                v-if="page.props.auth.user"
+                class="flex w-full max-w-sm flex-col items-stretch gap-3"
             >
-                Каталог растений
-            </AppLink>
-            <AppLink
-                href="/account"
-                class="home-link"
-            >
-                Личный кабинет
-            </AppLink>
-            <div class="home-logout">
+                <AppLink
+                    href="/catalog"
+                    class="rounded-xl border border-[#21483f] bg-[#21483f] px-4 py-3 text-center text-sm font-medium text-white transition-colors hover:bg-[#1a3a32]"
+                >
+                    Каталог растений
+                </AppLink>
+                <AppLink
+                    href="/account"
+                    class="rounded-xl border border-[#d7e5e0] bg-white px-4 py-3 text-center text-sm font-medium text-[#21483f] transition-colors hover:bg-[#f0f5f3]"
+                >
+                    Личный кабинет
+                </AppLink>
                 <LogoutButton />
             </div>
         </div>
-    </div>
+    </AppShell>
 </template>
-
-<style scoped>
-.home {
-    min-height: 100vh;
-    display: grid;
-    place-content: center;
-    gap: 0.75rem;
-    text-align: center;
-    font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
-}
-
-h1 {
-    font-size: 2.5rem;
-    font-weight: 600;
-    letter-spacing: -0.03em;
-    margin: 0;
-}
-
-p {
-    margin: 0;
-    opacity: 0.7;
-}
-
-.home-nav {
-    margin-top: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-}
-
-.home-logout {
-    width: min(100%, 16rem);
-}
-
-.home-link {
-    color: #21483f;
-    text-decoration: underline;
-    text-underline-offset: 0.25rem;
-}
-</style>

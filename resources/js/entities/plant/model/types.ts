@@ -90,8 +90,13 @@ export type Paginated<T> = {
     next_page_url: string | null;
 };
 
+export type CatalogListFilters = {
+    search: string;
+};
+
 export type CatalogPageProps = {
     plants: Paginated<PlantListItem>;
+    filters?: CatalogListFilters;
     auth: {
         user: import('@/entities/user').AuthUser | null;
     };
