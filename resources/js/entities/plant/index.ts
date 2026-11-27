@@ -1,5 +1,6 @@
 export type {
     CatalogPageProps,
+    FavoritesPageProps,
     Paginated,
     PaginationLink,
     PlantCommentPreview,

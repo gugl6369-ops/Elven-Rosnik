@@ -96,9 +96,17 @@ export type CatalogPageProps = {
     };
 };
 
+export type FavoritesPageProps = {
+    plants: Paginated<PlantListItem>;
+    auth: {
+        user: import('@/entities/user').AuthUser | null;
+    };
+};
+
 export type PlantShowPageProps = {
     plant: PlantDetail;
     auth: {
         user: import('@/entities/user').AuthUser | null;
     };
 };
+

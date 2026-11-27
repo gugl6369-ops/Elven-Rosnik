@@ -3,24 +3,34 @@ import type { Paginated, PlantListItem } from '@/entities/plant';
 import { PlantCard } from '@/entities/plant';
 import { AppLink } from '@/shared/ui';
 
-defineProps<{
-    plants: Paginated<PlantListItem>;
-}>();
+withDefaults(
+    defineProps<{
+        plants: Paginated<PlantListItem>;
+        title?: string;
+        subtitle?: string;
+        emptyTitle?: string;
+        emptyHint?: string;
+    }>(),
+    {
+        title: 'Каталог растений',
+        subtitle: 'Только просмотр — карточки из схемы `app.plant`.',
+        emptyTitle: 'В каталоге пока нет растений.',
+        emptyHint:
+            'Добавьте записи в БД или выполните `php artisan db:seed --class=PlantCatalogSeeder`.',
+    },
+);
 </script>
 
 <template>
     <div class="catalog">
         <header class="catalog__header">
-            <h1 class="catalog__title">Каталог растений</h1>
-            <p class="catalog__subtitle">Только просмотр — карточки из схемы `app.plant`.</p>
+            <h1 class="catalog__title">{{ title }}</h1>
+            <p class="catalog__subtitle">{{ subtitle }}</p>
         </header>
 
         <div v-if="plants.data.length === 0" class="catalog__empty">
-            <p>В каталоге пока нет растений.</p>
-            <p class="catalog__empty-hint">
-                Добавьте записи в БД или выполните
-                <code>php artisan db:seed --class=PlantCatalogSeeder</code>.
-            </p>
+            <p>{{ emptyTitle }}</p>
+            <p class="catalog__empty-hint">{{ emptyHint }}</p>
         </div>
 
         <ul v-else class="catalog__grid">

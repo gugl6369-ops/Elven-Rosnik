@@ -1,9 +1,10 @@
 <?php
 
 use App\Http\Controllers\AccountController;
-use App\Http\Controllers\Catalog\CatalogController;
 use App\Http\Controllers\Auth\ContinueRegistrationController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Catalog\CatalogController;
+use App\Http\Controllers\Social\FavoriteController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -40,4 +41,7 @@ if (! config('auth_throttle.disabled')) {
 Route::middleware(['auth'])->group(function (): void {
     Route::get('/account', [AccountController::class, 'show'])
         ->name('account');
+
+    Route::get('/account/favorites', [FavoriteController::class, 'index'])
+        ->name('account.favorites');
 });

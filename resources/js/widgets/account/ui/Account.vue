@@ -23,6 +23,14 @@ defineProps<{
                 </p>
             </div>
             <ViewProfile :user="user" />
+            <div class="flex justify-center">
+                <AppLink
+                    href="/account/favorites"
+                    class="text-sm text-[#21483f] underline decoration-[#21483f]/40 underline-offset-4 hover:decoration-[#21483f]"
+                >
+                    Избранное
+                </AppLink>
+            </div>
             <LogoutButton />
             <div class="flex justify-center">
                 <AppLink
