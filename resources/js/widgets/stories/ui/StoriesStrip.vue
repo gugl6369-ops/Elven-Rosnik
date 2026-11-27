@@ -15,6 +15,9 @@ const props = withDefaults(
 
 const hasStories = computed(() => props.stories.length > 0);
 
+const emptyHint =
+    'Выполните `php artisan db:seed --class=StoryDemoSeeder` (нужен пользователь в БД). Если таблицы `app.story` нет — примените `database/patches/004_story.sql` к локальной elfi_ros.';
+
 function storyImage(story: StoryListItem): string | null {
     if (story.media_type === 'image' && story.media_url) {
         return story.media_url;
@@ -25,9 +28,15 @@ function storyImage(story: StoryListItem): string | null {
 </script>
 
 <template>
-    <section v-if="hasStories" class="stories" aria-label="Лента историй">
+    <section class="stories" aria-label="Лента историй">
         <h2 class="stories__title">{{ title }}</h2>
-        <ul class="stories__row">
+
+        <div v-if="!hasStories" class="stories__empty">
+            <p>Активных историй пока нет.</p>
+            <p class="stories__empty-hint">{{ emptyHint }}</p>
+        </div>
+
+        <ul v-else class="stories__row">
             <li
                 v-for="story in stories"
                 :key="story.id"
@@ -71,6 +80,20 @@ function storyImage(story: StoryListItem): string | null {
     font-size: 1.25rem;
     font-weight: 600;
     color: #203f39;
+}
+
+.stories__empty {
+    margin: 0;
+    text-align: center;
+    font-size: 0.9375rem;
+    color: #5a746c;
+}
+
+.stories__empty-hint {
+    margin: 0.5rem 0 0;
+    font-size: 0.8125rem;
+    color: #78928a;
+    line-height: 1.45;
 }
 
 .stories__row {

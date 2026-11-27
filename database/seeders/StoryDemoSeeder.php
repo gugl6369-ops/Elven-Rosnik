@@ -12,6 +12,8 @@ use Illuminate\Support\Carbon;
  *
  * Run: php artisan db:seed --class=StoryDemoSeeder
  * Requires at least one user (e.g. after registration or elfi:ensure-admin).
+ *
+ * Re-run after stories expire to refresh active_from / active_until (updateOrCreate).
  */
 class StoryDemoSeeder extends Seeder
 {
@@ -64,7 +66,7 @@ class StoryDemoSeeder extends Seeder
         ];
 
         foreach ($definitions as $definition) {
-            Story::query()->firstOrCreate(
+            Story::query()->updateOrCreate(
                 [
                     'author_id' => $author->id,
                     'caption' => $definition['caption'],
@@ -74,7 +76,7 @@ class StoryDemoSeeder extends Seeder
                     'media_type' => 'image',
                     'link_url' => $definition['link_url'],
                     'active_from' => $now->copy()->subHours(2),
-                    'active_until' => $now->copy()->addDays(2),
+                    'active_until' => $now->copy()->addDays(7),
                     'is_active' => true,
                 ],
             );
