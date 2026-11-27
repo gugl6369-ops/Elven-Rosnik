@@ -95,6 +95,13 @@ function submitSearch(): void {
                 >
                     Главная
                 </AppLink>
+                <AppLink
+                    v-if="authUser?.is_admin"
+                    href="/admin"
+                    class="rounded-md px-2 py-1 transition-colors hover:bg-[#f0f5f3] hover:text-[#203f39]"
+                >
+                    Админ
+                </AppLink>
             </nav>
 
             <form

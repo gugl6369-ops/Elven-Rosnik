@@ -38,6 +38,10 @@ class HandleInertiaRequests extends Middleware
                     ? $request->user()->only(AccountController::inertiaUserFields())
                     : null,
             ],
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
+            ],
         ];
     }
 }
