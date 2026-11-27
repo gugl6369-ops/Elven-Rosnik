@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { PlantListItem } from '@/entities/plant';
+import { PlantFavoriteToggle } from '@/features/favorite';
 
 defineProps<{
     plant: PlantListItem;
@@ -34,6 +35,16 @@ function formatTemperature(min: string | null, max: string | null): string | nul
             />
             <div v-else class="plant-card__placeholder" aria-hidden="true">
                 🌿
+            </div>
+            <div
+                class="plant-card__favorite"
+                @click.stop.prevent
+            >
+                <PlantFavoriteToggle
+                    :plant-id="plant.id"
+                    :is-favorited="plant.is_favorited ?? false"
+                    compact
+                />
             </div>
         </div>
         <div class="plant-card__body">
@@ -78,8 +89,16 @@ function formatTemperature(min: string | null, max: string | null): string | nul
 }
 
 .plant-card__media {
+    position: relative;
     aspect-ratio: 4 / 3;
     background: #e8f0ed;
+}
+
+.plant-card__favorite {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 1;
 }
 
 .plant-card__image {

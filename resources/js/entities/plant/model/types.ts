@@ -14,6 +14,7 @@ export type PlantListItem = {
     temp_min: string | null;
     temp_max: string | null;
     genus: PlantGenus | null;
+    is_favorited?: boolean;
 };
 
 export type PlantTag = {

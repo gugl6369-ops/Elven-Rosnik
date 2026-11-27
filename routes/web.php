@@ -44,4 +44,10 @@ Route::middleware(['auth'])->group(function (): void {
 
     Route::get('/account/favorites', [FavoriteController::class, 'index'])
         ->name('account.favorites');
+
+    Route::post('/plants/{plant}/favorite', [FavoriteController::class, 'store'])
+        ->name('plants.favorite.store');
+
+    Route::delete('/plants/{plant}/favorite', [FavoriteController::class, 'destroy'])
+        ->name('plants.favorite.destroy');
 });

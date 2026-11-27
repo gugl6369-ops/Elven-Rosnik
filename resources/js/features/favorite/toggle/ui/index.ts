@@ -1,0 +1,1 @@
+export { default as PlantFavoriteToggle } from './PlantFavoriteToggle.vue';

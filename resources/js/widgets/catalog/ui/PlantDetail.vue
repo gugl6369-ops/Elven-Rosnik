@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import type { PlantDetail } from '@/entities/plant';
-import {
-    PlantCommentsList,
-    PlantFavoriteBadge,
-} from '@/entities/plant';
+import { PlantCommentsList } from '@/entities/plant';
+import { PlantFavoriteToggle } from '@/features/favorite';
 import { computed } from 'vue';
 
 const props = defineProps<{
@@ -62,7 +60,6 @@ const recipes = computed(() => props.plant.recipes ?? []);
 const comments = computed(() => props.plant.comments ?? []);
 const commentsCount = computed(() => props.plant.comments_count ?? comments.value.length);
 const favoritesCount = computed(() => props.plant.favorites_count ?? 0);
-const isFavorited = computed(() => props.plant.is_favorited ?? false);
 
 const extendedSections = computed(() => {
     const rows: { title: string; text: string }[] = [];
@@ -112,22 +109,13 @@ const extendedSections = computed(() => {
                 >
                     {{ plant.description }}
                 </p>
-                <PlantFavoriteBadge
-                    :is-favorited="isFavorited"
+                <PlantFavoriteToggle
+                    :plant-id="plant.id"
+                    :is-favorited="plant.is_favorited ?? false"
                     :favorites-count="favoritesCount"
-                    :interactive="false"
                 />
-                <p
-                    v-if="isAuthenticated && isFavorited"
-                    class="plant-detail__fav-hint"
-                >
-                    Вы отметили это растение в избранном.
-                </p>
-                <p
-                    v-else-if="!isAuthenticated"
-                    class="plant-detail__fav-hint"
-                >
-                    Войдите в аккаунт, чтобы видеть своё избранное.
+                <p v-if="!isAuthenticated" class="plant-detail__fav-hint">
+                    Войдите в аккаунт, чтобы добавлять растения в избранное.
                 </p>
             </div>
         </header>

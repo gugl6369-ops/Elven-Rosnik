@@ -5,13 +5,14 @@ const props = withDefaults(
     defineProps<{
         isFavorited?: boolean;
         favoritesCount?: number;
-        /** When false, control is display-only (no POST until API exists). */
         interactive?: boolean;
+        compact?: boolean;
     }>(),
     {
         isFavorited: false,
         favoritesCount: 0,
         interactive: false,
+        compact: false,
     },
 );
 
@@ -33,7 +34,7 @@ function onToggle(): void {
 </script>
 
 <template>
-    <div class="plant-favorite">
+    <div class="plant-favorite" :class="{ 'plant-favorite--compact': compact }">
         <button
             type="button"
             class="plant-favorite__control"
@@ -41,20 +42,16 @@ function onToggle(): void {
             :aria-pressed="isFavorited"
             :aria-label="label"
             :disabled="!interactive"
-            :title="
-                interactive
-                    ? label
-                    : 'Избранное: только просмотр до появления API'
-            "
+            :title="label"
             @click="onToggle"
         >
             <span class="plant-favorite__icon" aria-hidden="true">
                 {{ isFavorited ? '★' : '☆' }}
             </span>
-            <span class="plant-favorite__text">{{ label }}</span>
+            <span v-if="!compact" class="plant-favorite__text">{{ label }}</span>
         </button>
         <p
-            v-if="favoritesCount > 0"
+            v-if="!compact && favoritesCount > 0"
             class="plant-favorite__count"
         >
             {{ favoritesCount }}
@@ -92,6 +89,12 @@ function onToggle(): void {
 .plant-favorite__control--active {
     border-color: #c9a227;
     background: #fff9e8;
+}
+
+.plant-favorite--compact .plant-favorite__control {
+    padding: 0.4rem 0.55rem;
+    border-radius: 999px;
+    box-shadow: 0 1px 4px rgb(32 63 57 / 15%);
 }
 
 .plant-favorite__icon {

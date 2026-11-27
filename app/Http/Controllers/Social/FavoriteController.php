@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Social;
 
 use App\Http\Controllers\Controller;
 use App\Models\Plant;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -35,11 +36,26 @@ class FavoriteController extends Controller
                             'genus_name' => $plant->genus->genus_name,
                         ]
                         : null,
+                    'is_favorited' => true,
                 ];
             });
 
         return Inertia::render('account/ui/FavoritesPage', [
             'plants' => $plants,
         ]);
+    }
+
+    public function store(Request $request, Plant $plant): RedirectResponse
+    {
+        $request->user()->favoritePlants()->syncWithoutDetaching([$plant->id]);
+
+        return back();
+    }
+
+    public function destroy(Request $request, Plant $plant): RedirectResponse
+    {
+        $request->user()->favoritePlants()->detach($plant->id);
+
+        return back();
     }
 }
