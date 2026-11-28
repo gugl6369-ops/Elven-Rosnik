@@ -1,7 +1,3 @@
--- Patch: user moderation flag is_blocked (schema app)
--- Apply manually against elfi_ros. Idempotent.
--- See docs/backend-product-spec-and-guide.md §4.
-
 SET search_path TO app, public;
 
 ALTER TABLE "user"

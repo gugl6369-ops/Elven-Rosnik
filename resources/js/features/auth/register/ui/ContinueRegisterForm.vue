@@ -16,7 +16,6 @@ const toast = useAppToast();
 const defaultAvatarUrl = '/image/avatar-loading.svg';
 
 const avatarPreview = ref<string>(defaultAvatarUrl);
-/** Kept outside useForm so Inertia can append a real File to multipart FormData. */
 const avatarFile = ref<File | null>(null);
 
 const form = useForm({

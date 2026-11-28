@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\Tag;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateRecipeRequest extends FormRequest
 {
@@ -34,6 +36,11 @@ class UpdateRecipeRequest extends FormRequest
             'healthy' => ['sometimes', 'boolean'],
             'plant_ids' => ['nullable', 'array'],
             'plant_ids.*' => ['integer', 'exists:plant,id'],
+            'tag_ids' => ['nullable', 'array'],
+            'tag_ids.*' => ['integer', 'exists:tag,id'],
+            'new_tags' => ['nullable', 'array', 'max:50'],
+            'new_tags.*.name' => ['required', 'string', 'max:100', 'not_regex:/^\s*$/'],
+            'new_tags.*.category' => ['required', 'string', Rule::in(Tag::CATEGORIES)],
         ];
     }
 }

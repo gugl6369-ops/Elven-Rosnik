@@ -2,7 +2,8 @@
 import type { Paginated } from '@/entities/plant';
 import { useAdminFlash } from '@/features/admin/lib';
 import { RecipeFormDialog } from '@/features/admin/recipes';
-import type { AdminRecipeRow } from '@/features/admin/recipes/ui/RecipeFormDialog.vue';
+import type { AdminRecipeRow } from '@/features/admin/recipes';
+import type { AdminTagOption } from '@/features/admin/tags';
 import { useAppToast } from '@/shared/lib/toast';
 import { AppLink } from '@/shared/ui';
 import { AdminShell } from '@/widgets/admin';
@@ -14,6 +15,7 @@ type PlantOption = { id: number; name: string };
 const props = defineProps<{
     recipes: Paginated<AdminRecipeRow>;
     plantOptions: PlantOption[];
+    tags: AdminTagOption[];
     filters: { search?: string };
 }>();
 
@@ -115,6 +117,7 @@ function destroyRecipe(id: number): void {
         <RecipeFormDialog
             v-if="formOpen"
             :plant-options="plantOptions"
+            :tags="tags"
             :recipe="editing"
             @close="formOpen = false"
         />

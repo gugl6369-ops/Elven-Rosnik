@@ -1,4 +1,4 @@
-import type { CommentEntityKind } from '@/entities/comment';
+import type { CommentEntityKind, CommentReactionType } from '@/entities/comment';
 import { router } from '@inertiajs/vue3';
 import { ref, type Ref } from 'vue';
 
@@ -6,6 +6,7 @@ import { useAppToast } from '@/shared/lib/toast';
 
 import {
     commentDestroyUrl,
+    commentReactionUrl,
     commentStoreUrl,
     commentUpdateUrl,
 } from './commentRoutes';
@@ -22,6 +23,7 @@ export function useEntityComments(options: UseEntityCommentsOptions) {
     const draft = ref('');
     const editingId: Ref<number | null> = ref(null);
     const editDraft = ref('');
+    const reactionBusyId: Ref<number | null> = ref(null);
 
     const reloadOptions = {
         preserveScroll: true,
@@ -114,6 +116,32 @@ export function useEntityComments(options: UseEntityCommentsOptions) {
         );
     };
 
+    const toggleReaction = (
+        commentId: number,
+        reactionType: CommentReactionType,
+        currentReaction: CommentReactionType | null | undefined,
+    ): void => {
+        if (busy.value || reactionBusyId.value !== null) return;
+
+        reactionBusyId.value = commentId;
+        const url = commentReactionUrl(options.entityKind, options.entityId, commentId);
+        const requestOptions = {
+            preserveScroll: true,
+            preserveState: true,
+            only: [options.reloadProp],
+            onError: () => toast.error('Не удалось сохранить реакцию'),
+            onFinish: () => {
+                reactionBusyId.value = null;
+            },
+        };
+
+        if (currentReaction === reactionType) {
+            router.delete(url, requestOptions);
+        } else {
+            router.post(url, { reaction_type: reactionType }, requestOptions);
+        }
+    };
+
     return {
         busy,
         draft,
@@ -124,5 +152,7 @@ export function useEntityComments(options: UseEntityCommentsOptions) {
         cancelEdit,
         submitEdit,
         destroy,
+        reactionBusyId,
+        toggleReaction,
     };
 }

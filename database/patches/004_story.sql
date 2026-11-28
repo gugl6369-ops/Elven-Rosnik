@@ -1,7 +1,3 @@
--- Patch: ephemeral stories feed (schema app)
--- Apply manually against elfi_ros. Idempotent.
--- See docs/backend-product-spec-and-guide.md §10.
-
 SET search_path TO app, public;
 
 CREATE TABLE IF NOT EXISTS story (

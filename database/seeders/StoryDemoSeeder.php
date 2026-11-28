@@ -7,14 +7,6 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 
-/**
- * Demo stories for the home feed strip (local dev).
- *
- * Run: php artisan db:seed --class=StoryDemoSeeder
- * Requires at least one user (e.g. after registration or elfi:ensure-admin).
- *
- * Re-run after stories expire to refresh active_from / active_until (updateOrCreate).
- */
 class StoryDemoSeeder extends Seeder
 {
     public function run(): void

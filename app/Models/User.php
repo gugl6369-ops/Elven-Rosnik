@@ -104,6 +104,12 @@ class User extends Authenticatable
         return $this->belongsToMany(Plant::class, 'favorite', 'user_id', 'plant_id');
     }
 
+    /** @return BelongsToMany<Recipe, $this, Pivot, 'pivot'> */
+    public function favoriteRecipes(): BelongsToMany
+    {
+        return $this->belongsToMany(Recipe::class, 'favorite_recipe', 'user_id', 'recipe_id');
+    }
+
     public function getAuthIdentifierName(): string
     {
         return 'username';

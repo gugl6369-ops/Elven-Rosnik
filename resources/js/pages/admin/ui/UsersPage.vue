@@ -33,13 +33,22 @@ function canModify(target: AdminUserRow): boolean {
     return authUser.value != null && authUser.value.id !== target.id;
 }
 
+function canToggleAdmin(target: AdminUserRow): boolean {
+    return canModify(target) && (target.is_admin || target.is_blocked !== true);
+}
+
 function canBlock(target: AdminUserRow): boolean {
-    return canModify(target) && !target.is_admin;
+    return canModify(target) && (!target.is_admin || target.is_blocked === true);
 }
 
 function toggleAdmin(target: AdminUserRow): void {
     if (!canModify(target)) {
         toast.error('Нельзя изменить себя');
+        return;
+    }
+
+    if (!target.is_admin && target.is_blocked) {
+        toast.error('Сначала разблокируйте пользователя');
         return;
     }
 
@@ -113,7 +122,12 @@ function toggleBlock(target: AdminUserRow): void {
                                 <button
                                     type="button"
                                     class="ghost-btn"
-                                    :disabled="!canModify(user)"
+                                    :disabled="!canToggleAdmin(user)"
+                                    :title="
+                                        user.is_blocked && !user.is_admin
+                                            ? 'Сначала разблокируйте пользователя'
+                                            : undefined
+                                    "
                                     @click="toggleAdmin(user)"
                                 >
                                     {{ user.is_admin ? 'Снять админ' : 'Сделать админом' }}

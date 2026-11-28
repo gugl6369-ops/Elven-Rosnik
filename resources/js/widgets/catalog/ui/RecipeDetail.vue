@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { RecipeDetail } from '@/entities/recipe';
 import { EntityCommentsSection } from '@/features/comment';
+import { RecipeFavoriteToggle } from '@/features/favorite';
 import { Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
@@ -12,6 +13,7 @@ const props = defineProps<{
 }>();
 
 const plants = computed(() => props.recipe.plants ?? []);
+const tags = computed(() => props.recipe.tags ?? []);
 const comments = computed(() => props.recipe.comments ?? []);
 const commentsCount = computed(
     () => props.recipe.comments_count ?? comments.value.length,
@@ -22,6 +24,10 @@ const commentsCount = computed(
     <article class="recipe-detail">
         <header class="recipe-detail__header">
             <h1 class="recipe-detail__title">{{ recipe.name }}</h1>
+            <RecipeFavoriteToggle
+                :recipe-id="recipe.id"
+                :is-favorited="recipe.is_favorited ?? false"
+            />
             <p v-if="recipe.healthy" class="recipe-detail__badge">
                 Полезный рецепт
             </p>
@@ -85,6 +91,21 @@ const commentsCount = computed(
                     </Link>
                 </li>
             </ul>
+        </section>
+
+        <section
+            v-if="tags.length > 0"
+            class="recipe-detail__section"
+            aria-labelledby="recipe-tags-heading"
+        >
+            <h2 id="recipe-tags-heading" class="recipe-detail__section-title">
+                Теги
+            </h2>
+            <div class="recipe-detail__tags">
+                <span v-for="tag in tags" :key="tag.id" class="recipe-detail__tag">
+                    <small>{{ tag.category }}</small>{{ tag.name }}
+                </span>
+            </div>
         </section>
 
         <EntityCommentsSection
@@ -168,5 +189,28 @@ const commentsCount = computed(
 .recipe-detail__plant-link {
     color: #2f6d61;
     text-decoration: underline;
+}
+
+.recipe-detail__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.recipe-detail__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.65rem;
+    border: 1px solid #d7e5e0;
+    border-radius: 999px;
+    background: #f5f8f7;
+    color: #21483f;
+    font-size: 0.8125rem;
+}
+
+.recipe-detail__tag small {
+    color: #78928a;
+    font-size: 0.68rem;
 }
 </style>

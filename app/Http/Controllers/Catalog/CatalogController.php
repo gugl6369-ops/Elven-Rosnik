@@ -50,7 +50,7 @@ class CatalogController extends Controller
     {
         $plant->load([
             'genus:id,genus_name',
-            'tags:id,name',
+            'tags:id,name,category',
             'recipes:id,name',
         ]);
 
@@ -107,7 +107,7 @@ class CatalogController extends Controller
                 ])->values(),
                 'is_favorited' => $isFavorited,
                 'favorites_count' => $favoritesCount,
-                'comments' => $this->loadVisibleCommentsForMorph('plant', $plant->id),
+                'comments' => $this->loadVisibleCommentsForMorph('plant', $plant->id, $user?->id),
                 'comments_count' => $commentsCount,
             ],
         ]);

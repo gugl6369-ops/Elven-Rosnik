@@ -18,10 +18,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
         ]);
 
-        $middleware->web(append: [
-            HandleInertiaRequests::class,
-            AddLinkHeadersForPreloadedAssets::class,
-        ]);
+        $middleware->web(
+            prepend: ['throttle:web'],
+            append: [
+                HandleInertiaRequests::class,
+                AddLinkHeadersForPreloadedAssets::class,
+            ],
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

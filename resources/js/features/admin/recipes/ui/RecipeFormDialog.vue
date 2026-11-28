@@ -2,24 +2,17 @@
 import { useForm } from '@inertiajs/vue3';
 import { computed, watch } from 'vue';
 
+import { TagCategorySelector } from '@/features/admin/tags';
+import type { AdminTagOption, PendingTag } from '@/features/admin/tags';
+import type { AdminRecipeRow } from '../model/types';
 import { useAppToast } from '@/shared/lib/toast';
 import { Button } from '@/shared/ui';
 
 type PlantOption = { id: number; name: string };
 
-export type AdminRecipeRow = {
-    id: number;
-    name: string;
-    description: string | null;
-    additional: string | null;
-    advice: string | null;
-    recipe: string;
-    healthy: boolean;
-    plant_ids: number[];
-};
-
 const props = defineProps<{
     plantOptions: PlantOption[];
+    tags: AdminTagOption[];
     recipe?: AdminRecipeRow | null;
 }>();
 
@@ -38,6 +31,8 @@ const form = useForm({
     recipe: props.recipe?.recipe ?? '',
     healthy: props.recipe?.healthy ?? true,
     plant_ids: [...(props.recipe?.plant_ids ?? [])] as number[],
+    tag_ids: [...(props.recipe?.tag_ids ?? [])] as number[],
+    new_tags: [] as PendingTag[],
 });
 
 watch(
@@ -53,6 +48,8 @@ watch(
         form.recipe = recipe.recipe;
         form.healthy = recipe.healthy;
         form.plant_ids = [...recipe.plant_ids];
+        form.tag_ids = [...recipe.tag_ids];
+        form.new_tags = [];
     },
     { immediate: true },
 );
@@ -71,7 +68,6 @@ function submit(): void {
     const url = isEdit.value ? `/admin/recipes/${props.recipe!.id}` : '/admin/recipes';
     const options = {
         onSuccess: () => {
-            toast.success(isEdit.value ? 'Рецепт обновлён' : 'Рецепт создан');
             emit('close');
         },
         onError: () => toast.error('Проверьте поля формы'),
@@ -126,6 +122,15 @@ function submit(): void {
                             {{ p.name }}
                         </label>
                     </div>
+                </div>
+
+                <div class="field">
+                    <span class="field__label">Теги по категориям</span>
+                    <TagCategorySelector
+                        v-model="form.tag_ids"
+                        v-model:pending-tags="form.new_tags"
+                        :tags="tags"
+                    />
                 </div>
 
                 <Button type="submit" :disabled="form.processing">Сохранить</Button>

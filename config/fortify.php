@@ -98,7 +98,6 @@ return [
     */
 
     'features' => [
-        // Step 1 UI only; user creation is POST /register/continue (CompleteUserRegistration).
     ],
 
 ];

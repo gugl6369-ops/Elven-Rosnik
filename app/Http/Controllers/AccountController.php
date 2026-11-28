@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Account\UpdateUserAvatar;
+use App\Http\Requests\Account\UpdateAccountPasswordRequest;
+use App\Http\Requests\Account\UpdateAccountProfileRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -47,5 +50,25 @@ class AccountController extends Controller
         return redirect()
             ->route('account')
             ->with('success', 'Аватар обновлён');
+    }
+
+    public function updateProfile(UpdateAccountProfileRequest $request): RedirectResponse
+    {
+        $user = $request->user();
+        $user->forceFill($request->validated())->save();
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return back()->with('success', 'Имя и username обновлены.');
+    }
+
+    public function updatePassword(UpdateAccountPasswordRequest $request): RedirectResponse
+    {
+        $request->user()->forceFill([
+            'password' => $request->validated()['password'],
+        ])->save();
+        $request->session()->regenerate();
+
+        return back()->with('success', 'Пароль изменён.');
     }
 }

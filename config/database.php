@@ -95,7 +95,6 @@ return [
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
-            // Domain schema first; Laravel infra can still use public if needed.
             'search_path' => 'app,public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
         ],

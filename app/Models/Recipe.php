@@ -59,6 +59,18 @@ class Recipe extends Model
         return $this->belongsToMany(Plant::class, 'recipe_plant', 'recipe_id', 'plant_id');
     }
 
+    /** @return BelongsToMany<Tag, $this, Pivot, 'pivot'> */
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class, 'recipe_tag', 'recipe_id', 'tag_id');
+    }
+
+    /** @return BelongsToMany<User, $this, Pivot, 'pivot'> */
+    public function favoritedByUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'favorite_recipe', 'recipe_id', 'user_id');
+    }
+
     /** @return MorphMany<Comment, $this> */
     public function comments(): MorphMany
     {

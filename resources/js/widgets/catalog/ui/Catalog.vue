@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { Paginated, PlantListItem } from '@/entities/plant';
+import type { RecipeSection } from '@/entities/recipe';
 import { PlantCard } from '@/entities/plant';
 import { AppLink } from '@/shared/ui';
+import RecipeRecommendations from './RecipeRecommendations.vue';
 
 withDefaults(
     defineProps<{
@@ -11,6 +13,8 @@ withDefaults(
         emptyTitle?: string;
         emptyHint?: string;
         showPagination?: boolean;
+        recipeSections?: RecipeSection[];
+        plantOffset?: number;
     }>(),
     {
         title: 'Каталог растений',
@@ -19,6 +23,8 @@ withDefaults(
         emptyHint:
             'Добавьте записи в БД или выполните `php artisan db:seed --class=PlantCatalogSeeder`.',
         showPagination: true,
+        recipeSections: () => [],
+        plantOffset: 0,
     },
 );
 </script>
@@ -36,14 +42,23 @@ withDefaults(
         </div>
 
         <ul v-else class="catalog__grid">
-            <li v-for="plant in plants.data" :key="plant.id">
-                <AppLink
-                    :href="`/catalog/plants/${plant.id}`"
-                    class="catalog__card-link"
+            <template v-for="(plant, index) in plants.data" :key="plant.id">
+                <li>
+                    <AppLink
+                        :href="`/catalog/plants/${plant.id}`"
+                        class="catalog__card-link"
+                    >
+                        <PlantCard :plant="plant" />
+                    </AppLink>
+                </li>
+                <li
+                    v-for="section in recipeSections.filter((item) => item.after === plantOffset + index + 1)"
+                    :key="`recipes-${section.after}`"
+                    class="catalog__recipe-section"
                 >
-                    <PlantCard :plant="plant" />
-                </AppLink>
-            </li>
+                    <RecipeRecommendations :section="section" />
+                </li>
+            </template>
         </ul>
 
         <nav
@@ -127,6 +142,10 @@ withDefaults(
     text-decoration: none;
     border-radius: 1rem;
     transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.catalog__recipe-section {
+    grid-column: 1 / -1;
 }
 
 .catalog__card-link:hover {

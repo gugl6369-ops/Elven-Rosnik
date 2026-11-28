@@ -19,6 +19,7 @@ export type HomePageProps = {
     appName?: string;
     stories: StoryListItem[];
     plants: import('@/entities/plant').Paginated<import('@/entities/plant').PlantListItem>;
+    recipeSections: import('@/entities/recipe').RecipeSection[];
     auth: {
         user: import('@/entities/user').AuthUser | null;
     };

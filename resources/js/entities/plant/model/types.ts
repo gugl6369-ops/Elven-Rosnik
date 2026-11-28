@@ -33,10 +33,6 @@ import type { CommentPreview } from '@/entities/comment';
 /** @deprecated Use `CommentPreview` from `@/entities/comment`. */
 export type PlantCommentPreview = CommentPreview;
 
-/**
- * Detail DTO for `GET /catalog/plants/{plant}` (target props shape).
- * Partial props from an older controller revision are normalized in `PlantDetail` widget.
- */
 export type PlantDetail = {
     id: number;
     name: string;
@@ -53,7 +49,6 @@ export type PlantDetail = {
     readiness_check?: string | null;
     drying?: string | null;
     genus?: PlantGenus | null;
-    /** Legacy flat field from partial backend payloads */
     genus_name?: string | null;
     tags?: PlantTag[];
     recipes?: PlantRecipeSummary[];
@@ -94,6 +89,7 @@ export type CatalogPageProps = {
 
 export type FavoritesPageProps = {
     plants: Paginated<PlantListItem>;
+    recipes: Paginated<import('@/entities/recipe').FavoriteRecipeItem>;
     auth: {
         user: import('@/entities/user').AuthUser | null;
     };

@@ -4,8 +4,70 @@ import { Catalog } from '@/widgets/catalog';
 import { AppShell } from '@/widgets/layout';
 import { StoriesStrip } from '@/widgets/stories';
 import { AppLink } from '@/shared/ui';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
-defineProps<Pick<HomePageProps, 'appName' | 'stories' | 'plants'>>();
+const props = defineProps<Pick<HomePageProps, 'appName' | 'stories' | 'plants' | 'recipeSections'>>();
+
+const feedPlants = ref([...props.plants.data]);
+const recipeSections = ref([...props.recipeSections]);
+const nextPage = ref(props.plants.current_page + 1);
+const hasMore = ref(props.plants.current_page < props.plants.last_page);
+const loading = ref(false);
+const loadError = ref(false);
+const autoLoadAvailable = ref(true);
+const sentinel = ref<HTMLElement | null>(null);
+let observer: IntersectionObserver | null = null;
+
+const feed = computed(() => ({ ...props.plants, data: feedPlants.value }));
+
+async function loadNextPage(): Promise<void> {
+    if (loading.value || !hasMore.value) return;
+
+    loading.value = true;
+    loadError.value = false;
+
+    try {
+        const response = await fetch(`/home/feed?page=${nextPage.value}`, {
+            headers: { Accept: 'application/json' },
+            credentials: 'same-origin',
+        });
+        if (!response.ok) throw new Error('Не удалось загрузить растения');
+
+        const data = await response.json() as {
+            plants: HomePageProps['plants']['data'];
+            recipeSection: HomePageProps['recipeSections'][number] | null;
+            hasMore: boolean;
+            nextPage: number | null;
+        };
+
+        feedPlants.value.push(...data.plants);
+        if (data.recipeSection) recipeSections.value.push(data.recipeSection);
+        hasMore.value = data.hasMore;
+        if (data.nextPage !== null) nextPage.value = data.nextPage;
+    } catch {
+        loadError.value = true;
+    } finally {
+        loading.value = false;
+        requestAnimationFrame(() => {
+            if (!loadError.value && hasMore.value && sentinel.value && sentinel.value.getBoundingClientRect().top < window.innerHeight + 500) {
+                void loadNextPage();
+            }
+        });
+    }
+}
+
+onMounted(() => {
+    if (!sentinel.value || !('IntersectionObserver' in window)) {
+        autoLoadAvailable.value = false;
+        return;
+    }
+    observer = new IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) void loadNextPage();
+    }, { rootMargin: '500px 0px' });
+    observer.observe(sentinel.value);
+});
+
+onUnmounted(() => observer?.disconnect());
 </script>
 
 <template>
@@ -24,11 +86,23 @@ defineProps<Pick<HomePageProps, 'appName' | 'stories' | 'plants'>>();
 
             <section class="home__catalog">
                 <Catalog
-                    :plants="plants"
+                    :plants="feed"
+                    :recipe-sections="recipeSections"
                     title="Каталог растений"
-                    subtitle="Первые карточки — полный список в каталоге."
+                    subtitle="Листайте ленту: новые растения и рецепты подгружаются автоматически."
                     :show-pagination="false"
                 />
+                <div v-if="hasMore || loading || loadError" ref="sentinel" class="home__feed-status" aria-live="polite">
+                    <span v-if="loading">Загружаем растения…</span>
+                    <button v-else-if="loadError" type="button" class="home__retry" @click="loadNextPage">
+                        Не удалось загрузить. Повторить
+                    </button>
+                    <button v-else-if="!autoLoadAvailable" type="button" class="home__retry" @click="loadNextPage">
+                        Загрузить ещё растения
+                    </button>
+                    <span v-else>Прокрутите ниже, чтобы загрузить ещё</span>
+                </div>
+                <p v-else class="home__feed-end">Вы посмотрели все растения.</p>
                 <div class="home__catalog-footer">
                     <AppLink
                         href="/catalog"
@@ -76,6 +150,25 @@ defineProps<Pick<HomePageProps, 'appName' | 'stories' | 'plants'>>();
 .home__catalog-footer {
     display: flex;
     justify-content: center;
+}
+
+.home__feed-status,
+.home__feed-end {
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    padding: 0.5rem;
+    color: #648078;
+    font-size: 0.875rem;
+}
+
+.home__retry {
+    border: 0;
+    background: none;
+    color: #2f6d61;
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 .home__catalog-link {

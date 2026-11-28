@@ -65,6 +65,31 @@ class StoryController extends Controller
             ->with('success', 'История создана.');
     }
 
+    public function updateStatus(Request $request, Story $story): RedirectResponse
+    {
+        $validated = $request->validate([
+            'is_active' => ['required', 'boolean'],
+        ]);
+
+        $wasExpired = $story->active_until->isPast();
+        $story->is_active = (bool) $validated['is_active'];
+
+        if ($story->is_active && $wasExpired) {
+            $story->active_from = now();
+            $story->active_until = now()->addHours(24);
+        }
+
+        $story->save();
+
+        $message = ! $story->is_active
+            ? 'История скрыта из ленты.'
+            : ($wasExpired ? 'История добавлена в ленту на 24 часа.' : 'История добавлена в ленту.');
+
+        return redirect()
+            ->route('admin.stories.index')
+            ->with('success', $message);
+    }
+
     public function destroy(Story $story): RedirectResponse
     {
         $this->deletePublicPath($story->media_url);

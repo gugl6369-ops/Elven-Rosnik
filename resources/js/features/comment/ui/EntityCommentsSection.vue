@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import type { CommentEntityKind, CommentPreview } from '@/entities/comment';
+import type {
+    CommentEntityKind,
+    CommentPreview,
+    CommentReactionType,
+} from '@/entities/comment';
 import { computed } from 'vue';
 
 import { useEntityComments } from '../lib/useEntityComments';
@@ -36,11 +40,23 @@ const {
     cancelEdit,
     submitEdit,
     destroy,
+    reactionBusyId,
+    toggleReaction,
 } = useEntityComments({
     entityKind: props.entityKind,
     entityId: props.entityId,
     reloadProp: props.reloadProp,
 });
+
+const reactionOptions: {
+    type: CommentReactionType;
+    emoji: string;
+    label: string;
+}[] = [
+    { type: 'like', emoji: '👍', label: 'Нравится' },
+    { type: 'heart', emoji: '❤️', label: 'Сердце' },
+    { type: 'plant', emoji: '🌱', label: 'Полезно' },
+];
 
 const count = computed(() =>
     props.commentsCount > 0 ? props.commentsCount : props.comments.length,
@@ -71,6 +87,10 @@ function canModerate(comment: CommentPreview): boolean {
     }
 
     return props.currentUserId === comment.author.id;
+}
+
+function reactionCount(comment: CommentPreview, type: CommentReactionType): number {
+    return comment.reactions?.find((reaction) => reaction.type === type)?.count ?? 0;
 }
 </script>
 
@@ -157,6 +177,23 @@ function canModerate(comment: CommentPreview): boolean {
                 <p v-else class="entity-comments__content">
                     {{ comment.content }}
                 </p>
+                <div class="entity-comments__reactions" aria-label="Реакции на комментарий">
+                    <button
+                        v-for="reaction in reactionOptions"
+                        :key="reaction.type"
+                        type="button"
+                        class="entity-comments__reaction"
+                        :class="{ 'entity-comments__reaction--active': comment.user_reaction === reaction.type }"
+                        :aria-label="`${reaction.label}: ${reactionCount(comment, reaction.type)}`"
+                        :aria-pressed="comment.user_reaction === reaction.type"
+                        :title="isAuthenticated ? reaction.label : 'Войдите, чтобы оставить реакцию'"
+                        :disabled="!isAuthenticated || busy || reactionBusyId === comment.id"
+                        @click="toggleReaction(comment.id, reaction.type, comment.user_reaction)"
+                    >
+                        <span aria-hidden="true">{{ reaction.emoji }}</span>
+                        <span>{{ reactionCount(comment, reaction.type) }}</span>
+                    </button>
+                </div>
             </li>
         </ul>
 
@@ -185,7 +222,7 @@ function canModerate(comment: CommentPreview): boolean {
             </button>
         </form>
         <p v-else class="entity-comments__guest-hint">
-            Войдите в аккаунт, чтобы оставить комментарий.
+            Войдите в аккаунт, чтобы комментировать и оставлять реакции.
         </p>
     </section>
 </template>
@@ -297,6 +334,40 @@ function canModerate(comment: CommentPreview): boolean {
     line-height: 1.5;
     color: #203f39;
     white-space: pre-wrap;
+}
+
+.entity-comments__reactions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.65rem;
+}
+
+.entity-comments__reaction {
+    display: inline-flex;
+    min-width: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid #d7e5e0;
+    border-radius: 999px;
+    background: #fff;
+    color: #46645a;
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.entity-comments__reaction--active {
+    border-color: #81aa9d;
+    background: #eaf4ef;
+    color: #21483f;
+}
+
+.entity-comments__reaction:disabled {
+    cursor: default;
+    opacity: 0.75;
 }
 
 .entity-comments__form {

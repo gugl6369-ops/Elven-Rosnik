@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { AuthUser } from '@/entities/user';
 import { LogoutButton } from '@/features/account/logout';
+import { AccountSettings } from '@/features/account/settings';
 import { ViewProfile } from '@/features/account/view-profile';
 import { AppShell } from '@/widgets/layout';
 
@@ -17,10 +18,11 @@ defineProps<{
                     Личный кабинет
                 </h1>
                 <p class="text-center text-sm text-[#78928a]">
-                    Аватар можно изменить; остальные поля только для просмотра
+                    Обновите данные профиля и пароль
                 </p>
             </div>
             <ViewProfile :user="user" />
+            <AccountSettings :user="user" />
             <LogoutButton />
         </div>
     </AppShell>

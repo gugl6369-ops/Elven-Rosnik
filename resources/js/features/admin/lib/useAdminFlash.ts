@@ -1,5 +1,5 @@
-import { router, usePage } from '@inertiajs/vue3';
-import { onMounted, watch } from 'vue';
+import { usePage } from '@inertiajs/vue3';
+import { watch } from 'vue';
 
 import { useAppToast } from '@/shared/lib/toast';
 
@@ -27,15 +27,9 @@ export function useAdminFlash(): void {
         }
     };
 
-    onMounted(showFlash);
-
     watch(
         () => page.props.flash,
         () => showFlash(),
-        { deep: true },
+        { deep: true, immediate: true },
     );
-
-    router.on('finish', () => {
-        showFlash();
-    });
 }

@@ -14,6 +14,12 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  */
 class Tag extends Model
 {
+    public const CATEGORIES = [
+        'эффекты',
+        'противопоказания',
+        'возможные применения',
+    ];
+
     public $timestamps = false;
 
     protected $table = 'tag';
@@ -38,5 +44,11 @@ class Tag extends Model
     public function plants(): BelongsToMany
     {
         return $this->belongsToMany(Plant::class, 'plant_tag', 'tag_id', 'plant_id');
+    }
+
+    /** @return BelongsToMany<Recipe, $this, Pivot, 'pivot'> */
+    public function recipes(): BelongsToMany
+    {
+        return $this->belongsToMany(Recipe::class, 'recipe_tag', 'tag_id', 'recipe_id');
     }
 }

@@ -3,10 +3,10 @@ import type { PlantGenus, PlantListItem } from '@/entities/plant';
 import { useForm } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 
+import { TagCategorySelector } from '@/features/admin/tags';
+import type { AdminTagOption, PendingTag } from '@/features/admin/tags';
 import { useAppToast } from '@/shared/lib/toast';
 import { Button } from '@/shared/ui';
-
-type TagOption = { id: number; name: string; category: string };
 
 type AdminPlantRow = PlantListItem & {
     tag_ids?: number[];
@@ -14,7 +14,7 @@ type AdminPlantRow = PlantListItem & {
 
 const props = defineProps<{
     genera: PlantGenus[];
-    tags: TagOption[];
+    tags: AdminTagOption[];
     plant?: AdminPlantRow | null;
 }>();
 
@@ -28,6 +28,7 @@ const isEdit = computed(() => props.plant != null);
 
 const form = useForm({
     genus_id: props.plant?.genus?.id ?? (props.genera[0]?.id ?? ''),
+    new_genus_name: '',
     name: props.plant?.name ?? '',
     description: props.plant?.description ?? '',
     height: props.plant?.height ?? '',
@@ -36,6 +37,7 @@ const form = useForm({
     temp_min: props.plant?.temp_min ?? '',
     temp_max: props.plant?.temp_max ?? '',
     tag_ids: [...(props.plant?.tag_ids ?? [])] as number[],
+    new_tags: [] as PendingTag[],
 });
 
 watch(
@@ -45,6 +47,7 @@ watch(
             return;
         }
         form.genus_id = plant.genus?.id ?? form.genus_id;
+        form.new_genus_name = '';
         form.name = plant.name;
         form.description = plant.description ?? '';
         form.height = plant.height ?? '';
@@ -53,6 +56,7 @@ watch(
         form.temp_min = plant.temp_min ?? '';
         form.temp_max = plant.temp_max ?? '';
         form.tag_ids = [...(plant.tag_ids ?? [])];
+        form.new_tags = [];
     },
     { immediate: true },
 );
@@ -61,14 +65,10 @@ function onImageChange(event: Event): void {
     imageFile.value = (event.target as HTMLInputElement).files?.[0] ?? null;
 }
 
-function toggleTag(id: number): void {
-    const set = new Set(form.tag_ids);
-    if (set.has(id)) {
-        set.delete(id);
-    } else {
-        set.add(id);
+function onGenusChange(): void {
+    if (form.genus_id !== '') {
+        form.new_genus_name = '';
     }
-    form.tag_ids = [...set];
 }
 
 function submit(): void {
@@ -77,7 +77,6 @@ function submit(): void {
     const options = {
         forceFormData: imageFile.value !== null,
         onSuccess: () => {
-            toast.success(isEdit.value ? 'Карточка обновлена' : 'Карточка создана');
             emit('close');
         },
         onError: () => toast.error('Проверьте поля формы'),
@@ -110,9 +109,27 @@ function submit(): void {
             <form class="dialog__body" @submit.prevent="submit">
                 <label class="field">
                     <span class="field__label">Род *</span>
-                    <select v-model="form.genus_id" required class="field__input">
+                    <select
+                        v-model="form.genus_id"
+                        :required="form.new_genus_name.trim() === ''"
+                        class="field__input"
+                        @change="onGenusChange"
+                    >
+                        <option value="">Добавить свой род…</option>
                         <option v-for="g in genera" :key="g.id" :value="g.id">{{ g.genus_name }}</option>
                     </select>
+                </label>
+
+                <label v-if="form.genus_id === ''" class="field">
+                    <span class="field__label">Название нового рода *</span>
+                    <input
+                        v-model.trim="form.new_genus_name"
+                        required
+                        maxlength="255"
+                        class="field__input"
+                        placeholder="Например, Мята"
+                    />
+                    <small class="field__hint">Род будет добавлен в общий список при сохранении карточки.</small>
                 </label>
 
                 <label class="field">
@@ -146,18 +163,13 @@ function submit(): void {
                     <input v-model="form.sunlight" class="field__input" />
                 </label>
 
-                <div v-if="tags.length" class="tags">
-                    <span class="field__label">Теги</span>
-                    <div class="tags__list">
-                        <label v-for="tag in tags" :key="tag.id" class="tag-chip">
-                            <input
-                                type="checkbox"
-                                :checked="form.tag_ids.includes(tag.id)"
-                                @change="toggleTag(tag.id)"
-                            />
-                            {{ tag.name }}
-                        </label>
-                    </div>
+                <div class="field">
+                    <span class="field__label">Теги по категориям</span>
+                    <TagCategorySelector
+                        v-model="form.tag_ids"
+                        v-model:pending-tags="form.new_tags"
+                        :tags="tags"
+                    />
                 </div>
 
                 <Button type="submit" :disabled="form.processing">Сохранить</Button>

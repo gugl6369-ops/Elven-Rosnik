@@ -1,4 +1,3 @@
-/** Serialized `app.user` / shared `auth.user` (no password). */
 export type AuthUser = {
     id: number;
     username: string;
@@ -18,14 +17,12 @@ export type AccountPageProps = {
     };
 };
 
-/** Step 1 registration fields held client-side until final POST. */
 export type RegisterStep1DraftFields = {
     email: string;
     password: string;
     password_confirmation: string;
 };
 
-/** Profile fields for continue-registration (form + persisted draft). */
 export type ContinueRegisterProfileFields = {
     username: string;
     name: string;

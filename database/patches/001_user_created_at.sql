@@ -1,7 +1,3 @@
--- Patch: account creation timestamp on app."user"
--- Apply manually against elfi_ros (schema app). Idempotent.
--- See docs/user-model-vs-db.md in Project store.
-
 SET search_path TO app, public;
 
 ALTER TABLE app."user"

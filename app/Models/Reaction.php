@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Junction: composite PK (user_id, comment_id).
- *
  * @property int $user_id
  * @property int $comment_id
  * @property string $reaction_type

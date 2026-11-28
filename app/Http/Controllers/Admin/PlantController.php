@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Admin\Concerns\StoresPublicUploads;
+use App\Http\Controllers\Admin\Concerns\SyncsTags;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Catalog\Concerns\FormatsPlantListItems;
 use App\Http\Requests\Admin\StorePlantRequest;
@@ -13,6 +14,7 @@ use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -20,6 +22,7 @@ class PlantController extends Controller
 {
     use FormatsPlantListItems;
     use StoresPublicUploads;
+    use SyncsTags;
 
     public function index(Request $request): Response
     {
@@ -62,8 +65,10 @@ class PlantController extends Controller
     {
         $validated = $request->validated();
         $tagIds = $validated['tag_ids'] ?? [];
+        $newTags = $validated['new_tags'] ?? [];
 
-        DB::transaction(function () use ($request, $validated, $tagIds): void {
+        DB::transaction(function () use ($request, $validated, $tagIds, $newTags): void {
+            $genus = $this->resolveGenus($validated);
             $imageUrl = null;
             $file = $request->file('image');
 
@@ -72,7 +77,7 @@ class PlantController extends Controller
             }
 
             $plant = Plant::query()->create([
-                'genus_id' => $validated['genus_id'],
+                'genus_id' => $genus->id,
                 'name' => $validated['name'],
                 'description' => $validated['description'] ?? null,
                 'image_url' => $imageUrl,
@@ -83,7 +88,7 @@ class PlantController extends Controller
                 'temp_max' => $validated['temp_max'] ?? null,
             ]);
 
-            $plant->tags()->sync($tagIds);
+            $this->syncTags($plant->tags(), $tagIds, $newTags);
         });
 
         return redirect()
@@ -95,8 +100,10 @@ class PlantController extends Controller
     {
         $validated = $request->validated();
         $tagIds = $validated['tag_ids'] ?? [];
+        $newTags = $validated['new_tags'] ?? [];
 
-        DB::transaction(function () use ($request, $plant, $validated, $tagIds): void {
+        DB::transaction(function () use ($request, $plant, $validated, $tagIds, $newTags): void {
+            $genus = $this->resolveGenus($validated);
             $file = $request->file('image');
 
             if ($file !== null) {
@@ -105,7 +112,7 @@ class PlantController extends Controller
             }
 
             $plant->fill([
-                'genus_id' => $validated['genus_id'],
+                'genus_id' => $genus->id,
                 'name' => $validated['name'],
                 'description' => $validated['description'] ?? null,
                 'height' => $validated['height'] ?? null,
@@ -115,7 +122,7 @@ class PlantController extends Controller
                 'temp_max' => $validated['temp_max'] ?? null,
             ]);
             $plant->save();
-            $plant->tags()->sync($tagIds);
+            $this->syncTags($plant->tags(), $tagIds, $newTags);
         });
 
         return redirect()
@@ -131,5 +138,20 @@ class PlantController extends Controller
         return redirect()
             ->route('admin.plants.index')
             ->with('success', 'Карточка удалена.');
+    }
+
+    /** @param array<string, mixed> $validated */
+    private function resolveGenus(array $validated): Genus
+    {
+        if (! empty($validated['genus_id'])) {
+            return Genus::query()->findOrFail($validated['genus_id']);
+        }
+
+        $name = trim((string) $validated['new_genus_name']);
+
+        return Genus::query()
+            ->whereRaw('LOWER(genus_name) = ?', [Str::lower($name)])
+            ->first()
+            ?? Genus::query()->create(['genus_name' => $name]);
     }
 }

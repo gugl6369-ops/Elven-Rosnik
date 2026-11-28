@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Paginated } from '@/entities/plant';
-import { StoryCreateDialog } from '@/features/admin/stories';
+import { StoryCreateDialog, StoryDeleteDialog } from '@/features/admin/stories';
 import { useAdminFlash } from '@/features/admin/lib';
 import { useAppToast } from '@/shared/lib/toast';
 import { AppLink } from '@/shared/ui';
@@ -28,6 +28,7 @@ const toast = useAppToast();
 
 const searchDraft = ref(props.filters.search ?? '');
 const createOpen = ref(false);
+const storyToDelete = ref<number | null>(null);
 
 function submitSearch(): void {
     const q = searchDraft.value.trim();
@@ -38,16 +39,34 @@ function submitSearch(): void {
     );
 }
 
-function destroyStory(id: number): void {
-    if (!window.confirm('Удалить историю?')) {
-        return;
-    }
+function destroyStory(): void {
+    const id = storyToDelete.value;
+    if (id === null) return;
 
     router.delete(`/admin/stories/${id}`, {
         preserveScroll: true,
-        onSuccess: () => toast.success('История удалена'),
+        onSuccess: () => {
+            storyToDelete.value = null;
+        },
         onError: () => toast.error('Не удалось удалить'),
     });
+}
+
+function changeStoryStatus(story: AdminStory, event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const status = select.value;
+
+    router.patch(
+        `/admin/stories/${story.id}/status`,
+        { is_active: status !== 'inactive' },
+        {
+            preserveScroll: true,
+            onError: () => {
+                select.value = story.visible_on_home ? 'active' : story.is_active ? 'expired' : 'inactive';
+                toast.error('Не удалось изменить статус истории');
+            },
+        },
+    );
 }
 </script>
 
@@ -99,21 +118,18 @@ function destroyStory(id: number): void {
                                 </div>
                             </td>
                             <td>
-                                <span
-                                    class="badge"
-                                    :class="{
-                                        'badge--ok': story.visible_on_home,
-                                        'badge--muted': !story.is_active,
-                                    }"
+                                <select
+                                    class="status-select"
+                                    :value="story.visible_on_home ? 'active' : story.is_active ? 'expired' : 'inactive'"
+                                    aria-label="Статус истории"
+                                    @change="changeStoryStatus(story, $event)"
                                 >
-                                    {{
-                                        story.visible_on_home
-                                            ? 'В ленте'
-                                            : story.is_active
-                                              ? 'Скрыта (срок)'
-                                              : 'Выключена'
-                                    }}
-                                </span>
+                                    <option value="active">В ленте</option>
+                                    <option value="inactive">Выключена</option>
+                                    <option v-if="story.is_active && !story.visible_on_home" value="expired" disabled>
+                                        Срок истёк
+                                    </option>
+                                </select>
                             </td>
                             <td class="muted">
                                 {{ new Date(story.active_until).toLocaleString('ru-RU') }}
@@ -122,7 +138,7 @@ function destroyStory(id: number): void {
                                 <button
                                     type="button"
                                     class="danger-btn"
-                                    @click="destroyStory(story.id)"
+                                    @click="storyToDelete = story.id"
                                 >
                                     Удалить
                                 </button>
@@ -149,6 +165,11 @@ function destroyStory(id: number): void {
         </div>
 
         <StoryCreateDialog v-if="createOpen" @close="createOpen = false" />
+        <StoryDeleteDialog
+            v-if="storyToDelete !== null"
+            @cancel="storyToDelete = null"
+            @confirm="destroyStory"
+        />
     </AdminShell>
 </template>
 
@@ -215,6 +236,18 @@ function destroyStory(id: number): void {
     border: 1px solid #c45c5c;
     background: #fff;
     color: #b33;
+}
+
+.status-select {
+    min-width: 8.5rem;
+    border: 1px solid #7da99a;
+    border-radius: 0.5rem;
+    padding: 0.45rem 0.6rem;
+    background: #f3f8f5;
+    color: #21483f;
+    font: inherit;
+    font-size: 0.8125rem;
+    cursor: pointer;
 }
 
 .table-wrap {

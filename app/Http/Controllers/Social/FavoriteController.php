@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Social;
 
 use App\Http\Controllers\Controller;
 use App\Models\Plant;
+use App\Models\Recipe;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -13,11 +14,13 @@ class FavoriteController extends Controller
 {
     public function index(Request $request): Response
     {
-        $plants = $request->user()
+        $user = $request->user();
+
+        $plants = $user
             ->favoritePlants()
             ->with(['genus:id,genus_name'])
             ->orderBy('name')
-            ->paginate(12)
+            ->paginate(12, ['*'], 'plants_page')
             ->withQueryString()
             ->through(static function (Plant $plant): array {
                 return [
@@ -40,8 +43,29 @@ class FavoriteController extends Controller
                 ];
             });
 
+        $recipes = $user
+            ->favoriteRecipes()
+            ->with('plants:id,name')
+            ->orderBy('name')
+            ->paginate(12, ['recipe.*'], 'recipes_page')
+            ->withQueryString()
+            ->through(static function (Recipe $recipe): array {
+                return [
+                    'id' => $recipe->id,
+                    'name' => $recipe->name,
+                    'description' => $recipe->description,
+                    'healthy' => $recipe->healthy,
+                    'is_favorited' => true,
+                    'plants' => $recipe->plants->map(static fn (Plant $plant): array => [
+                        'id' => $plant->id,
+                        'name' => $plant->name,
+                    ])->values()->all(),
+                ];
+            });
+
         return Inertia::render('account/ui/FavoritesPage', [
             'plants' => $plants,
+            'recipes' => $recipes,
         ]);
     }
 
@@ -55,6 +79,20 @@ class FavoriteController extends Controller
     public function destroy(Request $request, Plant $plant): RedirectResponse
     {
         $request->user()->favoritePlants()->detach($plant->id);
+
+        return back();
+    }
+
+    public function storeRecipe(Request $request, Recipe $recipe): RedirectResponse
+    {
+        $request->user()->favoriteRecipes()->syncWithoutDetaching([$recipe->id]);
+
+        return back();
+    }
+
+    public function destroyRecipe(Request $request, Recipe $recipe): RedirectResponse
+    {
+        $request->user()->favoriteRecipes()->detach($recipe->id);
 
         return back();
     }

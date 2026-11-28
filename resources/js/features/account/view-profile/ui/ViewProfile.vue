@@ -36,18 +36,6 @@ const display = (value: string | null | undefined): string =>
         <ChangeAvatar :user="user" />
         <form class="flex w-full flex-col gap-5" @submit.prevent>
             <AppInput
-                :model-value="display(user.username)"
-                disabled
-                label="Имя пользователя"
-                placeholder=""
-            />
-            <AppInput
-                :model-value="display(user.name)"
-                disabled
-                label="Имя"
-                placeholder=""
-            />
-            <AppInput
                 :model-value="display(user.email)"
                 disabled
                 label="Почта"

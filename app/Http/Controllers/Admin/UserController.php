@@ -68,6 +68,10 @@ class UserController extends Controller
             abort(403);
         }
 
+        if (! $user->is_admin && $user->is_blocked) {
+            abort(403, 'Нельзя назначить администратором заблокированного пользователя.');
+        }
+
         $user->forceFill([
             'is_admin' => ! $user->is_admin,
         ])->save();
@@ -86,7 +90,7 @@ class UserController extends Controller
             abort(403, 'Нельзя блокировать самого себя.');
         }
 
-        if ($user->is_admin) {
+        if ($user->is_admin && ! $user->is_blocked) {
             abort(403, 'Нельзя блокировать администратора.');
         }
 

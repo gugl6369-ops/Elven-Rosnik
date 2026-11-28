@@ -44,7 +44,6 @@ const submit = (): void => {
         .post('/admin/stories', {
             forceFormData: true,
             onSuccess: () => {
-                toast.success('История создана');
                 emit('close');
             },
             onError: () => toast.error('Не удалось создать историю'),

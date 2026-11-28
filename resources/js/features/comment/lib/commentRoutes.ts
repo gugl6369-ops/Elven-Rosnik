@@ -26,3 +26,11 @@ export function commentDestroyUrl(
 ): string {
     return commentUpdateUrl(kind, entityId, commentId);
 }
+
+export function commentReactionUrl(
+    kind: CommentEntityKind,
+    entityId: number,
+    commentId: number,
+): string {
+    return `${commentDestroyUrl(kind, entityId, commentId)}/reaction`;
+}

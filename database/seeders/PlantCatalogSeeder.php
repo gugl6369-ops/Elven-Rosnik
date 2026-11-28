@@ -8,11 +8,6 @@ use App\Models\PlantTag;
 use App\Models\Tag;
 use Illuminate\Database\Seeder;
 
-/**
- * Demo catalog for local development. Idempotent via firstOrCreate on genus, plant name, and tags.
- *
- * Run: php artisan db:seed --class=PlantCatalogSeeder
- */
 class PlantCatalogSeeder extends Seeder
 {
     public function run(): void
@@ -74,6 +69,7 @@ class PlantCatalogSeeder extends Seeder
             'Helianthus',
             'Tagetes',
             'Pelargonium',
+            'Matricaria',
         ];
 
         $genera = [];
@@ -184,6 +180,18 @@ class PlantCatalogSeeder extends Seeder
                 'temp_min' => '15.00',
                 'temp_max' => '30.00',
                 'tag_keys' => ['kitchen', 'herb', 'indoor'],
+            ],
+            [
+                'genus' => 'Matricaria',
+                'name' => 'Ромашка аптечная',
+                'description' => 'Однолетняя душистая трава с цветками для домашних травяных настоев.',
+                'image_url' => 'https://picsum.photos/seed/chamomile/640/480',
+                'watering_frequency' => 'умеренно',
+                'sunlight' => 'полное солнце',
+                'height' => '0.50',
+                'temp_min' => '8.00',
+                'temp_max' => '28.00',
+                'tag_keys' => ['tea', 'herb', 'easy'],
             ],
             [
                 'genus' => 'Salvia',
